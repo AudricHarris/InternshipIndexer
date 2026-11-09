@@ -2,25 +2,29 @@
 
 namespace App\Controllers;
 
-use Error;
-
 class Importing extends BaseController
 {
 	public function index(): string
 	{
-		$open = fopen("/home/wearwqlf/Downloads/CompanyList.csv", "r");
-		
-		if ($open == null) throw new Error("No file Called that");
-
-		$array = [];
-		while (($data = fgetcsv($open, 1000, ",")) !== false)
+		$path = "/home/wearwqlf/Downloads/CompanyList.csv";
+		if ( file_exists($path) == null || fopen($path, "r") === false)
 		{
-			$array[] = $data;
+			echo "No file found";
+			return "";
 		}
 
-		fclose($open);
+		$file = file( $path, FILE_SKIP_EMPTY_LINES);
 
-		var_dump($array);
+		$csv = array_map("str_getcsv", $file);
+		$keys = array_shift($csv);
+
+
+		foreach ($csv as $i=>$row) {
+			$csv[$i] = array_combine($keys, $row);
+		}
+		
+		var_dump($csv);
+
 		echo "This is a test message\n";
 		return view('import_csv');
 	}
